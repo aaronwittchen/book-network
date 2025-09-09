@@ -5,6 +5,7 @@ A secure RESTful API for user authentication and management with JWT-based authe
 ## Features
 
 - **User Authentication**
+
   - User registration with email verification
   - JWT-based authentication
   - Password encryption
@@ -12,6 +13,7 @@ A secure RESTful API for user authentication and management with JWT-based authe
   - Role-based access control (RBAC)
 
 - **Security**
+
   - JWT token authentication
   - Secure password hashing
   - CSRF protection
@@ -33,9 +35,10 @@ A secure RESTful API for user authentication and management with JWT-based authe
 ## Quick Start
 
 1. **Start the application**
+
    ```bash
    docker-compose up -d
-````
+   ```
 
 2. **Register a new user**
 
@@ -53,8 +56,8 @@ A secure RESTful API for user authentication and management with JWT-based authe
 
 3. **Check your email**
 
-   * Access MailDev at [http://localhost:1080/#/](http://localhost:1080/#/)
-   * Find the activation email and copy the activation token
+   - Access MailDev at [http://localhost:1080/#/](http://localhost:1080/#/)
+   - Find the activation email and copy the activation token
 
 4. **Activate your account**
 
