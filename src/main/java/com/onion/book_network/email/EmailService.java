@@ -22,10 +22,10 @@ import static org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE
 @Slf4j
 @RequiredArgsConstructor
 public class EmailService {
-    
+
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
-    
+
     @Async
     public void sendEmail(
             String to,
@@ -34,37 +34,42 @@ public class EmailService {
             String confirmationUrl,
             String activationCode,
             String subject
-    ) throws MessagingException {
-        
-        String templateName;
-        if (emailTemplate == null) {
-            templateName = "confirm-email";
-        } else {
-            templateName = emailTemplate.name();
+    ) {
+        if (to == null || to.isBlank()) {
+            log.warn("Email recipient is null or empty, skipping email send");
+            return;
         }
-        
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(
-                mimeMessage,
-                MULTIPART_MODE_MIXED,
-                StandardCharsets.UTF_8.name()
-        );
-        
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("username", username);
-        properties.put("confirmationUrl", confirmationUrl);
-        properties.put("activation_code", activationCode);
-        
-        Context context = new Context();
-        context.setVariables(properties);
-        
-        helper.setFrom("contact@onion.com");
-        helper.setTo(to);
-        helper.setSubject(subject);
-        
-        String template = templateEngine.process(templateName, context);
-        helper.setText(template, true);
-        
-        mailSender.send(mimeMessage);
+
+        String templateName = (emailTemplate != null) ? emailTemplate.name() : "confirm-email";
+        if (emailTemplate == null) {
+            log.warn("Email template is null, using default template: {}", templateName);
+        }
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    mimeMessage,
+                    MULTIPART_MODE_MIXED,
+                    StandardCharsets.UTF_8.name()
+            );
+
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("username", username);
+            properties.put("confirmationUrl", confirmationUrl);
+            properties.put("activation_code", activationCode);
+
+            Context context = new Context();
+            context.setVariables(properties);
+
+            helper.setFrom("contact@onion.com"); // optionally inject via config
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(templateEngine.process(templateName, context), true);
+
+            mailSender.send(mimeMessage);
+            log.info("Email sent to: {}", to);
+        } catch (MessagingException e) {
+            log.error("Failed to send email to {}: {}", to, e.getMessage(), e);
+        }
     }
 }

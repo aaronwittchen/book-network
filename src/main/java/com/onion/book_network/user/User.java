@@ -18,10 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -30,96 +27,91 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
+@Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"password", "roles"})
 public class User implements UserDetails, Principal {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
-    
+
     @NotBlank(message = "First name is required")
     private String firstname;
-    
+
     @NotBlank(message = "Last name is required")
     private String lastname;
-    
+
     private LocalDate dateOfBirth;
-    
+
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
-    
+
     @NotBlank(message = "Password is required")
     private String password;
-    
+
     private boolean accountLocked;
     private boolean enabled;
-    
-    @ManyToMany(fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
-    
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
-    
+
     @LastModifiedDate
-    @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
-    
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
     }
-    
-    @Override
-    public String getPassword() {
-        return password;
-    }
-    
+
     @Override
     public String getUsername() {
         return email;
     }
-    
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
-    
+
     @Override
     public boolean isAccountNonLocked() {
         return !accountLocked;
     }
-    
+
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-    
+
     @Override
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     @Override
     public String getName() {
         return email;
     }
-    
+
     public String getFullName() {
-        if (firstname == null && lastname == null) {
-            return "";
-        }
-        return (firstname != null ? firstname : "") + " " + 
-               (lastname != null ? lastname : "");
+        return String.format("%s %s",
+                firstname != null ? firstname : "",
+                lastname != null ? lastname : "").trim();
     }
 }

@@ -32,15 +32,12 @@ class EmailServiceTest {
 
     @Test
     void sendEmail_shouldSendWithCorrectRecipientAndContent() throws Exception {
-        // Arrange
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        // Use Context.class instead of IContext to avoid ambiguity
         when(templateEngine.process(anyString(), any(Context.class)))
                 .thenReturn("<html>Email Content</html>");
 
-        // Act
         emailService.sendEmail(
                 "to@mail.com",
                 "Test User",
@@ -50,7 +47,6 @@ class EmailServiceTest {
                 "Account activation"
         );
 
-        // Assert
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq(EmailTemplateName.ACTIVATE_ACCOUNT.name()), any(Context.class));
     }

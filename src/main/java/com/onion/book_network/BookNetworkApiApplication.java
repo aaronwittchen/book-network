@@ -15,6 +15,8 @@ import com.onion.book_network.role.RoleRepository;
 @EnableAsync
 public class BookNetworkApiApplication {
 
+    public static final String ROLE_USER = "USER";
+
     public static void main(String[] args) {
         SpringApplication.run(BookNetworkApiApplication.class, args);
     }
@@ -22,8 +24,9 @@ public class BookNetworkApiApplication {
     @Bean
     public CommandLineRunner runner(RoleRepository roleRepository) {
         return args -> {
-            if (roleRepository.findByName("USER").isEmpty()) {
-                roleRepository.save(Role.builder().name("USER").build());
+            if (roleRepository.findByName(ROLE_USER).isEmpty()) {
+                roleRepository.save(Role.builder().name(ROLE_USER).build());
+                System.out.println("Initialized USER role");
             }
         };
     }

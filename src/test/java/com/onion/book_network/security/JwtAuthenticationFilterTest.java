@@ -52,7 +52,6 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        // Always clear SecurityContext before each test
         SecurityContextHolder.clearContext();
 
         userDetails = new User(
@@ -61,7 +60,6 @@ class JwtAuthenticationFilterTest {
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
         
-        // Mock servlet path to avoid NPE
         when(request.getServletPath()).thenReturn("/api/v1/books");
     }
 
@@ -110,7 +108,6 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer " + INVALID_TOKEN);
         when(jwtService.extractUsername(INVALID_TOKEN)).thenThrow(new RuntimeException("Invalid token"));
 
-        // Make sure filter handles exception gracefully
         assertDoesNotThrow(() -> jwtAuthenticationFilter.doFilterInternal(request, response, filterChain));
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -141,11 +138,9 @@ class JwtAuthenticationFilterTest {
 
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
-        // Authentication should remain the same
         assertSame(existingAuth, SecurityContextHolder.getContext().getAuthentication());
 
         verify(filterChain).doFilter(request, response);
-        // JwtService may still be called to extract username, but authentication is not replaced
         verify(jwtService).extractUsername(VALID_TOKEN);
     }
 }

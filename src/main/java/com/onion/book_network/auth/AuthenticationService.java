@@ -3,8 +3,11 @@ package com.onion.book_network.auth;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import com.onion.book_network.exception.ActivationTokenException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,9 +28,11 @@ import com.onion.book_network.user.UserRepository;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -41,13 +46,16 @@ public class AuthenticationService {
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+
     public void register(RegistrationRequest request) throws MessagingException {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new OperationNotPermittedException("Email already in use");
         }
+
         var userRole = roleRepository.findByName("USER")
-                // todo - better exception handling
-                .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
+                .orElseThrow(() -> new OperationNotPermittedException("ROLE USER was not initialized"));
+
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -57,49 +65,70 @@ public class AuthenticationService {
                 .enabled(false)
                 .roles(List.of(userRole))
                 .build();
+
         userRepository.save(user);
+        logger.info("User registered: {}", request.getEmail());
+
         sendValidationEmail(user);
     }
 
+    @Transactional(readOnly = true)
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            var auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-        var claims = new HashMap<String, Object>();
-        var user = ((User) auth.getPrincipal());
-        claims.put("fullName", user.getFullName());
+            var user = (User) auth.getPrincipal();
+            logger.info("User authenticated: {}", user.getEmail());
 
-        var jwtToken = jwtService.generateToken(claims, (User) auth.getPrincipal());
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+            // Create claims for the token
+            var claims = new HashMap<String, Object>();
+            claims.put("fullName", user.getFullName());
+            claims.put("email", user.getEmail());
+            
+            // Generate token with claims
+            var jwtToken = jwtService.generateToken(claims, user);
+
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        } catch (Exception e) {
+            logger.error("Authentication failed for user: {}", request.getEmail(), e);
+            throw e;
+        }
     }
 
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                // todo exception has to be defined
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new ActivationTokenException("Invalid activation token"));
+
+        if (savedToken.getValidatedAt() != null) {
+            throw new ActivationTokenException("Token has already been used");
+        }
+
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Activation token has expired. A new token has been send to the same email address");
+            throw new ActivationTokenException("Activation token expired. A new token has been sent to your email.");
         }
 
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         user.setEnabled(true);
         userRepository.save(user);
 
         savedToken.setValidatedAt(LocalDateTime.now());
         tokenRepository.save(savedToken);
+
+        logger.info("User account activated: {}", user.getEmail());
     }
 
     private String generateAndSaveActivationToken(User user) {
-        // Generate a token
         String generatedToken = generateActivationCode(6);
         var token = Token.builder()
                 .token(generatedToken)
@@ -108,13 +137,12 @@ public class AuthenticationService {
                 .user(user)
                 .build();
         tokenRepository.save(token);
-
+        logger.debug("Activation token generated for user: {}", user.getEmail());
         return generatedToken;
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
-
         emailService.sendEmail(
                 user.getEmail(),
                 user.getFullName(),
@@ -122,13 +150,13 @@ public class AuthenticationService {
                 activationUrl,
                 newToken,
                 "Account activation"
-                );
+        );
+        logger.info("Activation email sent to: {}", user.getEmail());
     }
 
     private String generateActivationCode(int length) {
         String characters = "0123456789";
         StringBuilder codeBuilder = new StringBuilder();
-
         SecureRandom secureRandom = new SecureRandom();
 
         for (int i = 0; i < length; i++) {
