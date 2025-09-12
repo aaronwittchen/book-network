@@ -5,6 +5,7 @@ A production-ready, secure RESTful API template featuring JWT-based authenticati
 ## Features
 
 ### Authentication & Security
+
 - **JWT-based Authentication** - Stateless token-based authentication
 - **Email Verification** - Secure user registration with email confirmation
 - **Role-Based Access Control** - Fine-grained authorization with user roles
@@ -13,12 +14,14 @@ A production-ready, secure RESTful API template featuring JWT-based authenticati
 - **HTTPS Ready** - Configured for secure communication
 
 ### Monitoring & Observability
+
 - **Spring Boot Actuator** - Comprehensive application monitoring
 - **Prometheus & Grafana** - Metrics collection and visualization
 - **Sentry Integration** - Real-time error tracking and monitoring
 - **Elasticsearch** - Advanced search and analytics capabilities
 
 ### Developer Experience
+
 - **Docker Compose** - Containerized development environment
 - **OpenAPI 3.0 Documentation** - Interactive API documentation
 - **Database Migrations** - Flyway for database version control
@@ -38,11 +41,13 @@ A production-ready, secure RESTful API template featuring JWT-based authenticati
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Java 17 or higher
 - Docker and Docker Compose
 - Maven 3.8+ (optional, using Maven Wrapper)
 
 ### Running with Docker Compose
+
 ```bash
 # Build and start all services
 docker-compose up -d --build
@@ -55,8 +60,10 @@ docker-compose down
 ```
 
 ### Access Services
+
 - **Application**: http://localhost:8080/api/v1
-- **Swagger UI**: http://localhost:8080/api/v1/swagger-ui.html
+- **Swagger UI**: http://localhost:8088/api/v1/swagger-ui/index.html
+- **OpenAPI Docs**: http://localhost:8088/api/v1/v3/api-docs
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000 (admin/admin)
 - **Elasticsearch**: http://localhost:9200
@@ -64,7 +71,9 @@ docker-compose down
 ## 🔧 Configuration
 
 ### Environment Variables
+
 Create a `.env` file in the project root:
+
 ```env
 # Database
 DB_URL=jdbc:postgresql://postgres:5432/book_network
@@ -82,11 +91,13 @@ SENTRY_DSN=your-sentry-dsn-here
 ## 📚 API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/register` - Register a new user
 - `POST /api/v1/auth/authenticate` - Authenticate and get JWT token
 - `GET /api/v1/auth/activate-account` - Activate account with token
 
 ### User Management
+
 - `GET /api/v1/users/me` - Get current user profile
 - `PUT /api/v1/users/me` - Update user profile
 - `DELETE /api/v1/users/me` - Delete user account
@@ -94,6 +105,7 @@ SENTRY_DSN=your-sentry-dsn-here
 ## 🧪 Testing
 
 Run tests with Maven:
+
 ```bash
 ./mvnw test
 ```
@@ -101,10 +113,12 @@ Run tests with Maven:
 ## 📈 Monitoring
 
 ### Prometheus Metrics
+
 - Endpoint: `/actuator/prometheus`
 - Scrape interval: 15s (configured in Prometheus)
 
 ### Health Checks
+
 - Endpoint: `/actuator/health`
 - Includes: Database, Disk Space, Ping
 
