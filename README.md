@@ -129,16 +129,16 @@ Run tests with Maven:
    Content-Type: application/json
 
    {
-     "firstname": "test",
-     "lastname": "test",
-     "email": "test@mail.com",
-     "password": "PassWord123!"
+   "email": "test@mail.com",
+   "password": "as3dw§$dopskDASD",
+   "firstName": "YourFirstName",
+   "lastName": "YourLastName"
    }
    ```
 
 2. **Check your email**
 
-   - Access MailDev at [http://localhost:1080/#/](http://localhost:1080/#/)
+   - Access MailDev at http://localhost:1080/#/
    - Find the activation email and copy the activation token
 
 3. **Activate your account**

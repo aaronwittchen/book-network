@@ -11,80 +11,78 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private ApiResponse<Void> buildErrorResponse(BusinessErrorCodes errorCode, List<String> details) {
+        return ApiResponseFactory.failure(errorCode.getDescription(), details);
+    }
+
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<ExceptionResponse> handleLockedException(LockedException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleLockedException(LockedException ex) {
+        BusinessErrorCodes error = BusinessErrorCodes.ACCOUNT_LOCKED;
         return ResponseEntity
-                .status(BusinessErrorCodes.ACCOUNT_LOCKED.getHttpStatus())
-                .body(ExceptionResponse.fromBusinessError(BusinessErrorCodes.ACCOUNT_LOCKED, ex.getMessage()));
+                .status(error.getHttpStatus())
+                .body(buildErrorResponse(error, List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ExceptionResponse> handleDisabledException(DisabledException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleDisabledException(DisabledException ex) {
+        BusinessErrorCodes error = BusinessErrorCodes.ACCOUNT_DISABLED;
         return ResponseEntity
-                .status(BusinessErrorCodes.ACCOUNT_DISABLED.getHttpStatus())
-                .body(ExceptionResponse.fromBusinessError(BusinessErrorCodes.ACCOUNT_DISABLED, ex.getMessage()));
+                .status(error.getHttpStatus())
+                .body(buildErrorResponse(error, List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ExceptionResponse> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
+        BusinessErrorCodes error = BusinessErrorCodes.BAD_CREDENTIALS;
         return ResponseEntity
-                .status(BusinessErrorCodes.BAD_CREDENTIALS.getHttpStatus())
-                .body(ExceptionResponse.fromBusinessError(BusinessErrorCodes.BAD_CREDENTIALS, "Login and/or password is incorrect"));
+                .status(error.getHttpStatus())
+                .body(buildErrorResponse(error, List.of("Code: " + error.getCode())));
     }
 
     @ExceptionHandler(MessagingException.class)
-    public ResponseEntity<ExceptionResponse> handleMessagingException(MessagingException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleMessagingException(MessagingException ex) {
         return ResponseEntity
                 .status(500)
-                .body(ExceptionResponse.builder()
-                        .error(ex.getMessage())
-                        .build());
+                .body(ApiResponseFactory.failure("Email sending failed", List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(ActivationTokenException.class)
-    public ResponseEntity<ExceptionResponse> handleActivationTokenException(ActivationTokenException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleActivationTokenException(ActivationTokenException ex) {
         return ResponseEntity
                 .badRequest()
-                .body(ExceptionResponse.builder()
-                        .error(ex.getMessage())
-                        .build());
+                .body(ApiResponseFactory.failure("Activation token invalid or expired", List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(OperationNotPermittedException.class)
-    public ResponseEntity<ExceptionResponse> handleOperationNotPermitted(OperationNotPermittedException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleOperationNotPermitted(OperationNotPermittedException ex) {
         return ResponseEntity
                 .badRequest()
-                .body(ExceptionResponse.builder()
-                        .error(ex.getMessage())
-                        .build());
+                .body(ApiResponseFactory.failure("Operation not permitted", List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Set<String> validationErrors = ex.getBindingResult().getAllErrors()
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> validationErrors = ex.getBindingResult().getAllErrors()
                 .stream()
                 .map(error -> error.getDefaultMessage())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         return ResponseEntity
                 .badRequest()
-                .body(ExceptionResponse.fromValidationErrors(validationErrors));
+                .body(ApiResponseFactory.failure("Validation failed", validationErrors));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleGenericException(Exception ex) {
-        ex.printStackTrace(); // Optional: log to a monitoring system
+    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        ex.printStackTrace(); // Optional: log to monitoring
         return ResponseEntity
                 .status(500)
-                .body(ExceptionResponse.builder()
-                        .businessErrorDescription("Internal server error, please contact the admin")
-                        .error(ex.getMessage())
-                        .build());
+                .body(ApiResponseFactory.failure("Internal server error, please contact admin", List.of(ex.getMessage())));
     }
 }

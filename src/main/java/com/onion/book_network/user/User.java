@@ -39,10 +39,12 @@ public class User implements UserDetails, Principal {
     private Integer id;
 
     @NotBlank(message = "First name is required")
-    private String firstname;
+    @Column(name = "first_name")
+    private String firstName;
 
     @NotBlank(message = "Last name is required")
-    private String lastname;
+    @Column(name = "last_name")
+    private String lastName;
 
     private LocalDate dateOfBirth;
 
@@ -111,7 +113,7 @@ public class User implements UserDetails, Principal {
 
     public String getFullName() {
         return String.format("%s %s",
-                firstname != null ? firstname : "",
-                lastname != null ? lastname : "").trim();
+                firstName != null ? firstName : "",
+                lastName != null ? lastName : "").trim();
     }
 }

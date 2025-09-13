@@ -18,10 +18,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "roles") // plural for consistency
+@Table(name = "roles")
 @EntityListeners(AuditingEntityListener.class)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true) // equality based on ID
-@ToString(exclude = "users") // avoid infinite recursion
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "users")
 public class Role {
 
     @Id

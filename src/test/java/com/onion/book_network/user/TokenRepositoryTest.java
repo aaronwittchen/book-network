@@ -22,8 +22,8 @@ class TokenRepositoryTest {
     void testSaveAndFindByToken() {
         // Create a user first
         User user = User.builder()
-                        .firstname("testuser")
-                        .lastname("User")
+                        .firstName("testuser")
+                        .lastName("User")
                         .email("testuser@mail.com")
                         .password("password123")
                         .build();

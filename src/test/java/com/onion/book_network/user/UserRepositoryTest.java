@@ -14,11 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@TestPropertySource(properties = {
-    "spring.jpa.hibernate.ddl-auto=create-drop",
-    "spring.flyway.enabled=false",
-    "spring.jpa.show-sql=true"
-})
 class UserRepositoryTest {
 
     private static final Logger log = LoggerFactory.getLogger(UserRepositoryTest.class);
@@ -41,13 +36,13 @@ class UserRepositoryTest {
         User user = new User();
         user.setEmail("test@mail.com");
         user.setPassword("password");
-        user.setFirstname("Test");
-        user.setLastname("User");
+        user.setFirstName("Test");
+        user.setLastName("User");
         user.setEnabled(true);
         user.setAccountLocked(false);
         
-        log.info("Created user object: email={}, firstname={}, lastname={}", 
-                 user.getEmail(), user.getFirstname(), user.getLastname());
+        log.info("Created user object: email={}, firstName={}, lastName={}", 
+                 user.getEmail(), user.getFirstName(), user.getLastName());
 
         // When
         log.info("Saving user to database...");
@@ -73,12 +68,12 @@ class UserRepositoryTest {
                 log.info("✓ Email matches: {}", foundUser.get().getEmail());
             },
             () -> {
-                assertEquals("Test", foundUser.get().getFirstname());
-                log.info("✓ Firstname matches: {}", foundUser.get().getFirstname());
+                assertEquals("Test", foundUser.get().getFirstName());
+                log.info("✓ First name matches: {}", foundUser.get().getFirstName());
             },
             () -> {
-                assertEquals("User", foundUser.get().getLastname());
-                log.info("✓ Lastname matches: {}", foundUser.get().getLastname());
+                assertEquals("User", foundUser.get().getLastName());
+                log.info("✓ Last name matches: {}", foundUser.get().getLastName());
             }
         );
         
@@ -109,8 +104,8 @@ class UserRepositoryTest {
         User user = new User();
         user.setEmail("exists@mail.com");
         user.setPassword("password");
-        user.setFirstname("Existing");
-        user.setLastname("User");
+        user.setFirstName("Existing");
+        user.setLastName("User");
         user.setEnabled(true);
         user.setAccountLocked(false);
         

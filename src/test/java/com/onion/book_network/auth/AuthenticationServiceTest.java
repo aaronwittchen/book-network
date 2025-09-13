@@ -47,7 +47,7 @@ class AuthenticationServiceTest {
     @Test
     void register_shouldThrowIfEmailExists() {
         RegistrationRequest req = RegistrationRequest.builder()
-                .firstname("Test").lastname("User").email("test@mail.com").password("password11").build();
+                .firstName("Test").lastName("User").email("test@mail.com").password("password11").build();
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(new User()));
         assertThatThrownBy(() -> authenticationService.register(req))
                 .isInstanceOf(OperationNotPermittedException.class)
@@ -57,7 +57,7 @@ class AuthenticationServiceTest {
     @Test
     void register_shouldEncodePasswordAndSaveUserAndSendEmail() throws Exception {
         RegistrationRequest req = RegistrationRequest.builder()
-                .firstname("Test").lastname("User").email("test@mail.com").password("password11").build();
+                .firstName("Test").lastName("User").email("test@mail.com").password("password11").build();
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.empty());
         Role userRole = Role.builder().id(1).name("USER").build();
         when(roleRepository.findByName("USER")).thenReturn(Optional.of(userRole));
@@ -78,7 +78,7 @@ class AuthenticationServiceTest {
                 .email("test@mail.com")
                 .password("password11")
                 .build();
-        User user = User.builder().email("test@mail.com").password("encoded").firstname("Test").lastname("User").roles(List.of()).build();
+        User user = User.builder().email("test@mail.com").password("encoded").firstName("Test").lastName("User").roles(List.of()).build();
         Authentication auth = mock(Authentication.class);
         when(auth.getPrincipal()).thenReturn(user);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
