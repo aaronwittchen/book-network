@@ -23,5 +23,5 @@ public class BookResponse {
     private double rate;
     private boolean archived;
     private boolean shareable;
-
+    private String message; // custom message for API responses
 }

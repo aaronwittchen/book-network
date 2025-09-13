@@ -49,6 +49,8 @@ A production-ready, secure RESTful API template featuring JWT-based authenticati
 ### Running with Docker Compose
 
 ```bash
+mvn clean install -DskipTests
+
 # Build and start all services
 docker-compose up -d --build
 
@@ -240,3 +242,42 @@ http://localhost:9200/_cat/indices?v
 ```
 
 - Good for logging, search, and monitoring purposes if you integrate with something like Kibana or Sentry.
+
+post http://localhost:8088/api/v1/books
+{
+"title": "Effective Java",
+"authorName": "Joshua Bloch",
+"isbn": "9780134685991",
+"synopsis": "A comprehensive guide to best practices in Java programming.",
+"shareable": true
+}
+
+{
+"id": 202,
+"title": "Effective Java",
+"authorName": "Joshua Bloch",
+"isbn": "9780134685991",
+"synopsis": "A comprehensive guide to best practices in Java programming.",
+"owner": "string string",
+"cover": null,
+"rate": 0.0,
+"archived": false,
+"shareable": true,
+"message": "Book created successfully with id: 202"
+}
+
+http://localhost:8088/api/v1/books/id
+
+{
+"id": 202,
+"title": "Effective Java",
+"authorName": "Joshua Bloch",
+"isbn": "9780134685991",
+"synopsis": "A comprehensive guide to best practices in Java programming.",
+"owner": "string string",
+"cover": null,
+"rate": 0.0,
+"archived": false,
+"shareable": true,
+"message": null
+}

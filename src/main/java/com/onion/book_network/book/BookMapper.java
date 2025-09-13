@@ -22,18 +22,22 @@ public class BookMapper {
     }
 
     public BookResponse toBookResponse(Book book) {
+        return toBookResponse(book, null);
+    }
+
+    public BookResponse toBookResponse(Book book, String message) {
         String ownerName = null;
         if (book.getOwner() != null) {
             ownerName = book.getOwner().getFirstName() + " " + book.getOwner().getLastName();
         }
-        
-        String cover = null;
+    
+        byte[] coverBytes = null; // declare outside try
         try {
-            cover = FileUtils.readFileFromLocation(book.getBookCover());
+            coverBytes = FileUtils.readFileFromLocation(book.getBookCover());
         } catch (Exception e) {
             log.warn("Could not load book cover for book id: " + book.getId(), e);
         }
-        
+    
         return BookResponse.builder()
                 .id(book.getId())
                 .title(book.getTitle())
@@ -44,9 +48,10 @@ public class BookMapper {
                 .archived(book.isArchived())
                 .shareable(book.isShareable())
                 .owner(ownerName)
-                .cover(cover)
+                .cover(coverBytes)  // assign byte[] directly
+                .message(message)   // set custom message
                 .build();
-    }
+    }    
 
     public BorrowedBookResponse toBorrowedBookResponse(BookTransactionHistory history) {
         return BorrowedBookResponse.builder()

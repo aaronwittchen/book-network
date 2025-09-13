@@ -30,11 +30,15 @@ public class BookService {
     private final BookTransactionHistoryRepository transactionHistoryRepository;
     private final FileStorageService fileStorageService;
 
-    public Integer save(BookRequest request, Authentication connectedUser) {
+    public BookResponse save(BookRequest request, Authentication connectedUser) {
         User user = getCurrentUser(connectedUser);
         Book book = bookMapper.toBook(request);
         book.setOwner(user);
-        return bookRepository.save(book).getId();
+        Book savedBook = bookRepository.save(book);
+        return bookMapper.toBookResponse(
+            savedBook, 
+            "Book created successfully with id: " + savedBook.getId()
+        );
     }
 
     @Transactional(readOnly = true)
