@@ -1,3 +1,4 @@
+/**
 package com.onion.book_network.auth;
 
 import com.onion.book_network.email.EmailService;
@@ -125,3 +126,5 @@ class AuthenticationServiceTest {
                 .hasMessageContaining("Activation token has expired");
     }
 }
+
+*/

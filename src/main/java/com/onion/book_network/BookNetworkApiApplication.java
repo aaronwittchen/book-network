@@ -11,7 +11,7 @@ import com.onion.book_network.role.Role;
 import com.onion.book_network.role.RoleRepository;
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableAsync
 public class BookNetworkApiApplication {
 
