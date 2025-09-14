@@ -24,18 +24,6 @@ services:
     networks:
       - book-network
 
-  app:
-    build: .
-    container_name: jwt-app
-    ports:
-      - '8080:8080'
-    environment:
-      - SENTRY_DSN=${SENTRY_DSN}
-    depends_on:
-      - postgres
-    networks:
-      - book-network
-
   prometheus:
     image: prom/prometheus:latest
     container_name: book-network-prometheus

@@ -23,3 +23,4 @@ public enum BusinessErrorCodes {
         this.httpStatus = httpStatus;
     }
 }
+

@@ -93,7 +93,7 @@ public class User implements UserDetails, Principal {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !accountLocked;
+        return true; // Always return true to disable account locking
     }
 
     @Override

@@ -29,11 +29,14 @@ export class BookCardComponent {
     this._manage = value;
   }
 
-  get bookCover(): string | undefined {
+  get bookCover(): string {
     if (this._book.cover) {
       return 'data:image/jpg;base64,' + this._book.cover;
     }
-    return 'https://source.unsplash.com/user/c_v_r/1900x800';
+    // Use the book's ID to generate a consistent random image for this book
+    // If no ID is available, use a default seed
+    const seed = this._book.id || Math.floor(Math.random() * 1000);
+    return `https://picsum.photos/seed/book-${seed}/200/300`;
   }
 
   @Output() private share: EventEmitter<BookResponse> =
