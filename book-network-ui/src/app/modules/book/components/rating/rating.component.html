@@ -1,0 +1,19 @@
+<div class="rating">
+  <ng-container *ngFor="let _ of Array(fullStars); let i = index">
+    <i class="fas fa-star text-warning" (click)="ratingClicked.emit(i + 1)"></i>
+  </ng-container>
+
+  <ng-container *ngIf="hasHalfStar">
+    <i
+      class="fas fa-star-half-alt text-warning"
+      (click)="ratingClicked.emit(fullStars + 0.5)"
+    ></i>
+  </ng-container>
+
+  <ng-container *ngFor="let _ of Array(emptyStars); let i = index">
+    <i
+      class="far fa-star"
+      (click)="ratingClicked.emit(fullStars + (hasHalfStar ? 1 : 0) + i + 1)"
+    ></i>
+  </ng-container>
+</div>
